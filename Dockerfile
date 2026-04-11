@@ -11,7 +11,8 @@ RUN echo "user:x:1000:1000:user:/home/user:/sbin/nologin" > /tmp/passwd && \
     chown -R 1000:1000 /tmp/home
 
 # Extract with better error handling
-RUN set -ex && \
+RUN --mount=type=cache,target=/var/cache/apk \
+    set -ex && \
     mkdir -p /rootfs/bin /rootfs/lib /rootfs/usr/lib /rootfs/etc/ssl/certs /rootfs/home/user && \
     cp /usr/bin/node /rootfs/bin/node && \
     # Get library list and copy actual files (not symlinks)
