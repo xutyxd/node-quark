@@ -1,69 +1,44 @@
-FROM alpine:edge AS builder
-# Download and install Node.js and UPX for compression
-RUN apk add --no-cache nodejs npm upx
+ARG ALPINE_VERSION=3.22
+FROM alpine:${ALPINE_VERSION} AS builder
 
-# Compress the Node binary and major libraries
+RUN apk add --no-cache nodejs npm upx
 RUN upx --best --lzma /usr/bin/node
 
-# Create non-root user
+# Create non-root user files
 RUN echo "user:x:1000:1000:user:/home/user:/sbin/nologin" > /tmp/passwd && \
-    echo "user:x:1000:" > /tmp/group
+    echo "user:x:1000:" > /tmp/group && \
+    mkdir -p /tmp/home/user && \
+    chown -R 1000:1000 /tmp/home
+
+# Extract with better error handling
+RUN set -ex && \
+    mkdir -p /rootfs/bin /rootfs/lib /rootfs/usr/lib /rootfs/etc/ssl/certs /rootfs/home/user && \
+    cp /usr/bin/node /rootfs/bin/node && \
+    # Get library list and copy actual files (not symlinks)
+    ldd /usr/bin/node | grep -o '/[^ ]*' | sort -u > /tmp/libs.txt && \
+    cat /tmp/libs.txt && \
+    while IFS= read -r lib; do \
+        if [ -e "$lib" ]; then \
+            mkdir -p "/rootfs$(dirname "$lib")" && \
+            cp -L "$lib" "/rootfs$lib"; \
+        fi \
+    done < /tmp/libs.txt && \
+    # Ensure musl dynamic linker is present
+    cp /lib/ld-musl-*.so.* /rootfs/lib/ && \
+    # Certs and user files
+    cp /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/certs/ && \
+    cp /tmp/passwd /rootfs/etc/passwd && \
+    cp /tmp/group /rootfs/etc/group
+
+RUN ln -s /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/cert.pem
 
 # ----------------
 FROM scratch AS runner
 
-# Copy essential libraries (musl + libstdc++ + ssl)
-# docker run --rm alpine:edge sh -c "apk add --no-cache nodejs && ldd /usr/bin/node"
-# Musl libc (dynamic linker + libc)
-COPY --from=builder /lib/ld-musl-*.so.* /lib/
-COPY --from=builder /lib/libc.musl-*.so.* /lib/
+COPY --from=builder /rootfs/ /
 
-# Compression libraries
-COPY --from=builder /usr/lib/libz.so.* /usr/lib/
-COPY --from=builder /usr/lib/libzstd.so.* /usr/lib/
-
-# URL parsing (Ada)
-COPY --from=builder /usr/lib/libada.so.* /usr/lib/
-
-# JSON/UTF parsing (optimized)
-COPY --from=builder /usr/lib/libsimdjson.so.* /usr/lib/
-COPY --from=builder /usr/lib/libsimdutf.so.* /usr/lib/
-
-# Brotli compression
-COPY --from=builder /usr/lib/libbrotlidec.so.* /usr/lib/
-COPY --from=builder /usr/lib/libbrotlienc.so.* /usr/lib/
-COPY --from=builder /usr/lib/libbrotlicommon.so.* /usr/lib/
-
-# DNS resolution
-COPY --from=builder /usr/lib/libcares.so.* /usr/lib/
-
-# HTTP/2
-COPY --from=builder /usr/lib/libnghttp2.so.* /usr/lib/
-
-# SQLite (Node.js uses it for some internals)
-COPY --from=builder /usr/lib/libsqlite3.so.* /usr/lib/
-
-# SSL/TLS
-COPY --from=builder /usr/lib/libcrypto.so.* /usr/lib/
-COPY --from=builder /usr/lib/libssl.so.* /usr/lib/
-
-# ICU (Internationalization - required for Intl API)
-COPY --from=builder /usr/lib/libicui18n.so.* /usr/lib/
-COPY --from=builder /usr/lib/libicuuc.so.* /usr/lib/
-COPY --from=builder /usr/lib/libicudata.so.* /usr/lib/
-
-# GCC runtime
-COPY --from=builder /usr/lib/libstdc++.so.* /usr/lib/
-COPY --from=builder /usr/lib/libgcc_s.so.* /usr/lib/
-
-# Node.js binary
-COPY --from=builder /usr/bin/node /usr/bin/node
-
-# CA certificates (for HTTPS)
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-# User setup
-COPY --from=builder /tmp/passwd /etc/passwd
-COPY --from=builder /tmp/group /etc/group
-
+ENV PATH=/bin
 USER user
+WORKDIR /home/user
+
+ENTRYPOINT ["/bin/node"]
