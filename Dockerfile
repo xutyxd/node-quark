@@ -3,11 +3,11 @@ FROM alpine:${ALPINE_VERSION} AS builder
 
 RUN apk add --no-cache nodejs npm upx
 
-# Create non-root user files
-RUN echo "user:x:1000:1000:user:/home/user:/sbin/nologin" > /tmp/passwd && \
-    echo "user:x:1000:" > /tmp/group && \
-    mkdir -p /tmp/home/user && \
-    chown -R 1000:1000 /tmp/home
+# Create non-root node user files
+RUN echo "node:x:1000:1000:node:/home/node:/sbin/nologin" > /tmp/passwd && \
+    echo "node:x:1000:" > /tmp/group && \
+    mkdir -p /tmp/home/node && \
+    chown -R 1000:1000 /tmp/home/node
 
 # Extract with better error handling
 RUN --mount=type=cache,target=/var/cache/apk \
@@ -33,9 +33,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
     cp /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/certs/ && \
     cp /tmp/passwd /rootfs/etc/passwd && \
     cp /tmp/group /rootfs/etc/group
-
-# Compress with UPX before ldd
-RUN 
 
 RUN ln -s /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/cert.pem
 
