@@ -51,10 +51,10 @@ docker run --rm xutyxd/node-quark:22 -p "process.arch"
 ## Available Tags
 | Tag                                            | Node Version      | Alpine Base | Size  | Platform     |
 | ---------------------------------------------- | ----------------- | ----------- | ----- | ------------ |
-| `22`, `22.11`, `22.11.0`, `22.11.0-alpine3.21` | 22.x              | 3.21        | ~60MB | amd64, arm64 |
-| `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ~58MB | amd64, arm64 |
-| `edge`, `23-edge`                              | 23.x (dev)        | edge        | ~62MB | amd64, arm64 |
-| `latest`                                       | 22.x (latest LTS) | 3.21        | ~60MB | amd64, arm64 |
+| `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ~26MB | amd64, arm64 |
+| `22`, `22.22`, `22.22.2`, `22.22.2-alpine3.22` | 22.x              | 3.22        | ~32MB | amd64, arm64 |
+| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ~32MB | amd64, arm64 |
+| `latest`                                       | 24.x (latest LTS) | edge        | ~32MB | amd64, arm64 |
 
 ## 🏗️ Architecture
 
@@ -171,4 +171,5 @@ EXPOSE 8080
  - Inspired by Google Distroless but with dynamic dependency resolution
  - Built on Alpine Linux for the builder stage
     - **Jakub Jirutka** ([@jirutka](https://github.com/jirutka)) Node.js Alpine Builder
+ - Compression is provided by [UPX](https://github.com/upx/upx)
  - Node.js is a trademark of the OpenJS Foundation
