@@ -13,7 +13,7 @@ RUN echo "node:x:1000:1000:node:/home/node:/sbin/nologin" > /tmp/passwd && \
 RUN --mount=type=cache,target=/var/cache/apk \
     echo "Building for ${ALPINE_VERSION}" && \
     set -ex && \
-    mkdir -p /rootfs/bin /rootfs/lib /rootfs/usr/lib /rootfs/etc/ssl/certs /rootfs/home/user && \
+    mkdir -p /rootfs/bin /rootfs/lib /rootfs/usr/lib /rootfs/etc/ssl/certs /rootfs/home/node && \
     # Get library list and copy actual files (not symlinks)
     ldd /usr/bin/node | grep -o '/[^ ]*' | sort -u > /tmp/libs.txt && \
     cat /tmp/libs.txt && \
