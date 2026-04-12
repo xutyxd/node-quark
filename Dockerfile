@@ -43,7 +43,7 @@ FROM scratch AS runner
 COPY --from=builder /rootfs/ /
 
 ENV PATH=/bin
-USER user
-WORKDIR /home/user
+USER node
+WORKDIR /home/node
 
 ENTRYPOINT ["/bin/node"]
