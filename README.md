@@ -53,8 +53,8 @@ docker run --rm xutyxd/node-quark:22 -p "process.arch"
 | ---------------------------------------------- | ----------------- | ----------- | ----- | ------------ |
 | `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ~26MB | amd64, arm64 |
 | `22`, `22.22`, `22.22.2`, `22.22.2-alpine3.22` | 22.x              | 3.22        | ~32MB | amd64, arm64 |
-| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ~32MB | amd64, arm64 |
-| `latest`                                       | 24.x (latest LTS) | edge        | ~32MB | amd64, arm64 |
+| `latest`                                       | 22.x (latest LTS) | 3.22        | ~32MB | amd64, arm64 |
+| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ~33MB | amd64, arm64 |
 
 ## 🏗️ Architecture
 
