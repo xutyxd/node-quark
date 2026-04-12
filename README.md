@@ -30,7 +30,7 @@ Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` 
 - **🔒 Security Hardened**: Non-root user (`uid:1000`), no shell, no package manager, minimal filesystem
 - **🏷️ Semantic Tagging**: Automatic version extraction and multi-tag strategy (major, minor, patch)
 - **🔄 Multi-Version Support**: Node.js 20 (LTS), 22 (LTS), and Edge (latest development)
-- **🗜️ Optional Compression**: UPX compression support for even smaller binaries (trade-off: startup time)
+- **🗜️ Compression**: UPX compression support for even smaller binaries (trade-off: startup time)
 
 ## 🏃 Quick Start
 
