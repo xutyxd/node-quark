@@ -85,48 +85,26 @@ jobs:
         run: |
           FULL_VER=$(docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} --version | tr -d 'v')
           echo "full=$FULL_VER" >> $GITHUB_OUTPUT
-          
-          # Parse components
-          MAJOR=$(echo "$FULL_VER" | cut -d. -f1 | cut -d- -f1)
-          MINOR=$(echo "$FULL_VER" | cut -d. -f2)
-          PATCH=$(echo "$FULL_VER" | cut -d. -f3 | cut -d- -f1)
-          
-          echo "major=$MAJOR" >> $GITHUB_OUTPUT
-          echo "minor=$MINOR" >> $GITHUB_OUTPUT
-          echo "patch=$PATCH" >> $GITHUB_OUTPUT
-          
-          echo "Detected Node.js v$FULL_VER"
+          echo "major=$(cut -d. -f1 <<< $FULL_VER)" >> $GITHUB_OUTPUT
+          echo "minor=$(cut -d. -f2 <<< $FULL_VER)" >> $GITHUB_OUTPUT
+          echo "patch=$(cut -d. -f3 <<< $FULL_VER)" >> $GITHUB_OUTPUT
 
       # Generate tags
-      - name: Generate tags
+      - name: Docker meta
         id: meta
-        run: |
-          VERSION="${{ steps.node_version.outputs.full }}"
-          MAJOR="${{ steps.node_version.outputs.major }}"
-          MINOR="${{ steps.node_version.outputs.minor }}"
-          PATCH="${{ steps.node_version.outputs.patch }}"
-          ALPINE="${{ matrix.alpine }}"
-          
-          TAGS=""
-          if [ "$ALPINE" = "edge" ]; then
-            # Edge tagging: edge, 23-edge (or whatever major)
-            TAGS="${{ env.IMAGE_NAME }}:edge,${{ env.IMAGE_NAME }}:${MAJOR}-edge"
-            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${MAJOR}"
-          else
-            # Standard tagging: 20, 20.15, 20.15.1, 20.15.1-alpine3.20
-            TAGS="${{ env.IMAGE_NAME }}:${MAJOR}"
-            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${MAJOR}.${MINOR}"
-            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${MAJOR}.${MINOR}.${PATCH}"
-            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${MAJOR}.${MINOR}.${PATCH}-alpine${ALPINE}"
-            
-            # Optional: latest tag for highest Alpine (3.21 currently)
-            if [ "$ALPINE" = "3.22" ]; then
-              TAGS="${TAGS},${{ env.IMAGE_NAME }}:latest"
-            fi
-          fi
-          
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT
-          echo "Tags: $TAGS"
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false  # We control latest manually
+          tags: |
+            type=raw,value=${{ steps.node_ver.outputs.major }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }}.${{ steps.node_ver.outputs.patch }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }}.${{ steps.node_ver.outputs.patch }}-alpine${{ matrix.alpine }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=edge,enable=${{ matrix.alpine == 'edge' }}
+            type=raw,value=${{ steps.node_ver.outputs.major }}-edge,enable=${{ matrix.alpine == 'edge' }}
+            type=raw,value=latest,enable=${{ matrix.alpine == '3.22' }}
 
       # Build and push multi-arch
       - name: Build and push multi-arch
@@ -139,6 +117,7 @@ jobs:
             ALPINE_VERSION=${{ matrix.alpine }}
             NODE_VERSION=${{ steps.node_version.outputs.full }}
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.alpine }}
           # Don't cache-to here to avoid overwriting single-arch cache if needed
           provenance: false  # Reduces manifest complexity for scratch images
