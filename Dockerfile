@@ -1,4 +1,6 @@
 ARG ALPINE_VERSION=3.22
+ARG NODE_VERSION
+
 FROM alpine:${ALPINE_VERSION} AS builder
 
 RUN apk add --no-cache nodejs npm upx
