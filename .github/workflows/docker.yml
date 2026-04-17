@@ -10,6 +10,10 @@ on:
     - cron: '0 6 * * 1'  # Weekly rebuilds for security updates
   workflow_dispatch:
 
+permissions:
+  id-token: write # For signing
+  contents: read
+
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/node-quark
@@ -107,6 +111,7 @@ jobs:
           if [ "$ALPINE" = "edge" ]; then
             # Edge tagging: edge, 23-edge (or whatever major)
             TAGS="${{ env.IMAGE_NAME }}:edge,${{ env.IMAGE_NAME }}:${MAJOR}-edge"
+            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${MAJOR}"
           else
             # Standard tagging: 20, 20.15, 20.15.1, 20.15.1-alpine3.20
             TAGS="${{ env.IMAGE_NAME }}:${MAJOR}"
@@ -141,11 +146,19 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ${{ env.IMAGE_NAME }}:${{ steps.node_version.outputs.major }}
+          format: spdx-json
+          output-file: sbom.spdx.json
           
       - name: Sign image with cosign
         uses: sigstore/cosign-installer@v3
-      - run: |
-          cosign sign --yes ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+        env:
+          COSIGN_YES: "true"  # Auto-approve the prompt
+        run: |
+          cosign attest \
+            --yes \
+            --predicate sbom.spdx.json \
+            --type spdx \
+            ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}@${{ steps.build.outputs.digest }}
 
       # Cleanup temp image
       - name: Cleanup temp image
