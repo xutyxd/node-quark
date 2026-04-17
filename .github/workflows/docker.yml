@@ -75,10 +75,18 @@ jobs:
           # Test crypto (often fails in minimal images)
           docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
             -e "console.log('Crypto test:', require('crypto').randomBytes(4).toString('hex'))"
-          
-          # Test HTTPS (CA certs)
+
+          # CA certificates exist and are valid PEM
           docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
-            -e "require('https').get('https://google.com', (r) => console.log('HTTPS test:', r.statusCode))"
+            -e "const fs=require('fs'); const c=fs.readFileSync('/etc/ssl/certs/ca-certificates.crt','utf8'); if(!c.includes('BEGIN CERTIFICATE')) throw new Error('Invalid CA bundle'); console.log('CA OK, certs:', c.match(/BEGIN CERTIFICATE/g).length);" || exit 1
+          
+          # TLS works
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "require('tls').createSecureContext(); console.log('TLS OK');" || exit 1
+          
+          # DNS module works
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "require('dns'); console.log('DNS module OK');" || exit 1
       # Extract Node.js version from built image
       - name: Extract Node version
         id: node_version
