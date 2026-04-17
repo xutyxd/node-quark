@@ -98,12 +98,12 @@ jobs:
           flavor: |
             latest=false  # We control latest manually
           tags: |
-            type=raw,value=${{ steps.node_ver.outputs.major }},enable=${{ matrix.alpine != 'edge' }}
-            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }},enable=${{ matrix.alpine != 'edge' }}
-            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }}.${{ steps.node_ver.outputs.patch }},enable=${{ matrix.alpine != 'edge' }}
-            type=raw,value=${{ steps.node_ver.outputs.major }}.${{ steps.node_ver.outputs.minor }}.${{ steps.node_ver.outputs.patch }}-alpine${{ matrix.alpine }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_version.outputs.major }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_version.outputs.major }}.${{ steps.node_version.outputs.minor }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_version.outputs.major }}.${{ steps.node_version.outputs.minor }}.${{ steps.node_version.outputs.patch }},enable=${{ matrix.alpine != 'edge' }}
+            type=raw,value=${{ steps.node_version.outputs.major }}.${{ steps.node_version.outputs.minor }}.${{ steps.node_version.outputs.patch }}-alpine${{ matrix.alpine }},enable=${{ matrix.alpine != 'edge' }}
             type=raw,value=edge,enable=${{ matrix.alpine == 'edge' }}
-            type=raw,value=${{ steps.node_ver.outputs.major }}-edge,enable=${{ matrix.alpine == 'edge' }}
+            type=raw,value=${{ steps.node_version.outputs.major }}-edge,enable=${{ matrix.alpine == 'edge' }}
             type=raw,value=latest,enable=${{ matrix.alpine == '3.22' }}
 
       # Build and push multi-arch
