@@ -16,7 +16,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
     mkdir -p /rootfs/bin /rootfs/lib /rootfs/usr/lib /rootfs/etc/ssl/certs /rootfs/home/node && \
     # Get library list and copy actual files (not symlinks)
     ldd /usr/bin/node | grep -o '/[^ ]*' | sort -u > /tmp/libs.txt && \
-    cat /tmp/libs.txt && \
     while IFS= read -r lib; do \
         if [ -e "$lib" ]; then \
             mkdir -p "/rootfs$(dirname "$lib")" && \
@@ -32,9 +31,9 @@ RUN --mount=type=cache,target=/var/cache/apk \
     # Certs and user files
     cp /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/certs/ && \
     cp /tmp/passwd /rootfs/etc/passwd && \
-    cp /tmp/group /rootfs/etc/group
-
-RUN ln -s /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/cert.pem
+    cp /tmp/group /rootfs/etc/group && \
+    # Symlink CA certs
+    ln -s /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/cert.pem
 
 # ----------------
 FROM scratch AS runner
@@ -46,3 +45,13 @@ USER node
 WORKDIR /home/node
 
 ENTRYPOINT ["/bin/node"]
+
+# Small healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "console.log('Health check')" || exit 1
+
+LABEL org.opencontainers.image.title="Node-Quark" \
+    org.opencontainers.image.description="Ultra-minimal Node.js Docker image" \
+    org.opencontainers.image.source="https://github.com/xutyxd/node-quark" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.version="${NODE_VERSION}"

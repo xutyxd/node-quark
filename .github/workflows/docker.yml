@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Step 1: Build AMD64 only first to extract Node version
+      # Build AMD64 only first to extract Node version
       - name: Build AMD64 for version extraction
         uses: docker/build-push-action@v6
         with:
@@ -61,8 +61,21 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }}
           cache-from: type=gha,scope=${{ matrix.alpine }}
           cache-to: type=gha,scope=${{ matrix.alpine }},mode=max
-
-      # Step 2: Extract Node.js version from built image
+      # Smoke test to check all is OK
+      - name: Test image functionality
+        run: |
+          # Test basic Node.js functionality
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "console.log('Basic test: OK')"
+          
+          # Test crypto (often fails in minimal images)
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "console.log('Crypto test:', require('crypto').randomBytes(4).toString('hex'))"
+          
+          # Test HTTPS (CA certs)
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "require('https').get('https://google.com', (r) => console.log('HTTPS test:', r.statusCode))"
+      # Extract Node.js version from built image
       - name: Extract Node version
         id: node_version
         run: |
@@ -80,7 +93,7 @@ jobs:
           
           echo "Detected Node.js v$FULL_VER"
 
-      # Step 3: Generate tags
+      # Generate tags
       - name: Generate tags
         id: meta
         run: |
@@ -110,7 +123,7 @@ jobs:
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
           echo "Tags: $TAGS"
 
-      # Step 4: Build and push multi-arch
+      # Build and push multi-arch
       - name: Build and push multi-arch
         uses: docker/build-push-action@v6
         with:
@@ -119,10 +132,20 @@ jobs:
           push: true
           build-args: |
             ALPINE_VERSION=${{ matrix.alpine }}
+            NODE_VERSION=${{ steps.node_version.outputs.full }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.alpine }}
           # Don't cache-to here to avoid overwriting single-arch cache if needed
           provenance: false  # Reduces manifest complexity for scratch images
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE_NAME }}:${{ steps.node_version.outputs.major }}
+          
+      - name: Sign image with cosign
+        uses: sigstore/cosign-installer@v3
+      - run: |
+          cosign sign --yes ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
       # Cleanup temp image
       - name: Cleanup temp image
