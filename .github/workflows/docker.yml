@@ -130,14 +130,16 @@ jobs:
           
       - name: Sign image with cosign
         uses: sigstore/cosign-installer@v3
+
+      - name: Attest image with cosign
         env:
-          COSIGN_YES: "true"  # Auto-approve the prompt
+          COSIGN_YES: "true"
         run: |
           cosign attest \
             --yes \
             --predicate sbom.spdx.json \
             --type spdx \
-            ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}@${{ steps.build.outputs.digest }}
+            ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
       # Cleanup temp image
       - name: Cleanup temp image
