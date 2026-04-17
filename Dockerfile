@@ -36,7 +36,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
 
 RUN ln -s /etc/ssl/certs/ca-certificates.crt /rootfs/etc/ssl/cert.pem
 
-RUN ls -lah /rootfs/lib/
 # ----------------
 FROM scratch AS runner
 
