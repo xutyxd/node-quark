@@ -21,10 +21,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/xutyxd/node-quark?logo=docker&label=Docker+pulls&logoColor=white&color=2560ff&style=flat-square)](https://hub.docker.com/r/xutyxd/node-quark)
 [![Docker Image Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/latest?logo=docker&label=&logoColor=white&color=2560ff&style=flat-square)](https://hub.docker.com/r/xutyxd/node-quark)
 [![Architectures](https://img.shields.io/badge/Arch-amd64%20%7C%20arm64%2Fv8-blueviolet?logo=arm&logoColor=white)](Dockerfile)
-
 [![Node Version](https://img.shields.io/badge/Node.js-22%20LTS%20%7C%2020%20LTS%20%7C%20Edge-brightgreen?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Security](https://img.shields.io/badge/Security-No%20shell%20%7C%20Non--root%20%7C%20No%20pkg%20mgr-red?logo=shield-halved&logoColor=white)](Dockerfile)
-
 [![GitHub Actions](https://github.com/xutyxd/node-quark/actions/workflows/docker.yml/badge.svg)](https://github.com/xutyxd/node-quark/actions)
 [![Signed with Cosign](https://img.shields.io/badge/Signed-Cosign%20(Keyless)-9cf?logo=sigstore&logoColor=white)](https://github.com/xutyxd/node-quark#-verifying-image-signatures)
 
