@@ -29,10 +29,9 @@
 [![Signed with Cosign](https://img.shields.io/badge/Signed-Cosign%20(Keyless)-9cf?logo=sigstore&logoColor=white)](https://github.com/xutyxd/node-quark#-verifying-image-signatures)
 
 
-
+</center>
 
 > **Ultra-minimal, multi-architecture Node.js containers built from scratch**
-</center>
 
 Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` rather than full Linux distributions. By dynamically extracting only the essential libraries required by Node.js from Alpine Linux, we achieve images that are **~35MB** (compared to ~180MB+ for standard Alpine Node images) while maintaining full HTTPS, crypto, and ICU (internationalization) support.
 
