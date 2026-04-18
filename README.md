@@ -1,5 +1,11 @@
-# 🚀 Node-Quark
-<!-- ![Node Quark banner](/assets/node-quark-banner.jpeg "Node Quark") -->
+<h1 style="display: flex; align-items: center; gap: 10px;">
+    <picture>
+        <source srcset="./assets/node-quark-logo.png" width="50px">
+        <img alt="diskio logo" src="./assets/node-quark-banner.jpeg" width="50px">
+    </picture>
+    <span>Node Quark</span>
+</h1>
+
 <p align="center">
   <a href="https://github.com/xutyxd/node-quark">
     <picture>
@@ -11,16 +17,24 @@
 
 <center>
 
-[![Docker Image Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/latest)](https://hub.docker.com/r/xutyxd/node-quark)
-[![Docker Pulls](https://img.shields.io/docker/pulls/xutyxd/node-quark)](https://hub.docker.com/r/xutyxd/node-quark)
-[![GitHub Actions](https://github.com/xutyxd/node-quark/actions/workflows/docker.yml/badge.svg)](https://github.com/xutyxd/node-quark/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Base Image](https://img.shields.io/badge/Base-Scratch%20(Distroless)-critical?logo=linux&logoColor=white)](Dockerfile)
+[![Docker Pulls](https://img.shields.io/docker/pulls/xutyxd/node-quark?logo=docker&label=Docker+pulls&logoColor=white&color=2560ff&style=flat-square)](https://hub.docker.com/r/xutyxd/node-quark)
+[![Docker Image Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/latest?logo=docker&label=&logoColor=white&color=2560ff&style=flat-square)](https://hub.docker.com/r/xutyxd/node-quark)
+[![Architectures](https://img.shields.io/badge/Arch-amd64%20%7C%20arm64%2Fv8-blueviolet?logo=arm&logoColor=white)](Dockerfile)
 
+[![Node Version](https://img.shields.io/badge/Node.js-22%20LTS%20%7C%2020%20LTS%20%7C%20Edge-brightgreen?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Security](https://img.shields.io/badge/Security-No%20shell%20%7C%20Non--root%20%7C%20No%20pkg%20mgr-red?logo=shield-halved&logoColor=white)](Dockerfile)
+
+[![GitHub Actions](https://github.com/xutyxd/node-quark/actions/workflows/docker.yml/badge.svg)](https://github.com/xutyxd/node-quark/actions)
+[![Signed with Cosign](https://img.shields.io/badge/Signed-Cosign%20(Keyless)-9cf?logo=sigstore&logoColor=white)](https://github.com/xutyxd/node-quark#-verifying-image-signatures)
+
+
+
+
+> **Ultra-minimal, multi-architecture Node.js containers built from scratch**
 </center>
 
-&gt; **Ultra-minimal, multi-architecture Node.js containers built from scratch**
-
-Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` rather than full Linux distributions. By dynamically extracting only the essential libraries required by Node.js from Alpine Linux, we achieve images that are **~60MB** (compared to ~180MB+ for standard Alpine Node images) while maintaining full HTTPS, crypto, and ICU (internationalization) support.
+Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` rather than full Linux distributions. By dynamically extracting only the essential libraries required by Node.js from Alpine Linux, we achieve images that are **~35MB** (compared to ~180MB+ for standard Alpine Node images) while maintaining full HTTPS, crypto, and ICU (internationalization) support.
 
 ## ✨ Features
 
@@ -51,10 +65,9 @@ docker run --rm xutyxd/node-quark:22 -p "process.arch"
 ## Available Tags
 | Tag                                            | Node Version      | Alpine Base | Size  | Platform     |
 | ---------------------------------------------- | ----------------- | ----------- | ----- | ------------ |
-| `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ~26MB | amd64, arm64 |
-| `22`, `22.22`, `22.22.2`, `22.22.2-alpine3.22` | 22.x              | 3.22        | ~32MB | amd64, arm64 |
-| `latest`                                       | 22.x (latest LTS) | 3.22        | ~32MB | amd64, arm64 |
-| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ~33MB | amd64, arm64 |
+| `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/20?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
+| `22`, `22.22`, `22.22.2`, `22.22.2-alpine3.22`, `latests` | 22.x              | 3.22        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/22?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
+| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/edge?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
 
 ## 🏗️ Architecture
 
@@ -126,22 +139,19 @@ RUN npm run openapi:bundle
 RUN npm run server:build
 RUN npm run clean
 
--------
+# --------
+FROM alpine:3.22 AS tools
 
-FROM xutyxd/node-quark:22 AS runner
-
-# 1. Elevate to root to modify the filesystem
-USER root
-
-# 2. Create the directory and set ownership to UID 1000 (user)
 RUN mkdir -p /usr/src/app && \
     chown -R 1000:1000 /usr/src/app
 
-# 3. Set the working directory
-WORKDIR /usr/src/app
+# --------
 
-# 4. Switch to the non-root user (UID 1000)
-USER 1000
+FROM xutyxd/node-quark:22 AS runner
+
+COPY --from=tools /usr/src/app /usr/src/app
+
+WORKDIR /usr/src/app
 
 COPY --from=builder /user/src/app/server/cjs /user/src/app/server/cjs
 COPY --from=builder /user/src/app/server/openapi /user/src/app/server/openapi
@@ -159,7 +169,24 @@ EXPOSE 8080
 | `node:22`                | ~1.1GB    | Debian Bookworm | Many CVEs                  |
 | `node:22-alpine`         | ~180MB    | Alpine 3.21     | Minimal CVEs               |
 | `node:22-slim`           | ~250MB    | Debian Slim     | Medium CVEs                |
-| **xutyxd/node-quark:22** | **~50MB** | **Scratch**     | **Minimal attack surface** |
+| **xutyxd/node-quark:22** | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/22?logo=docker&label=&logoColor=white&style=flat-square) | **Scratch**     | **Minimal attack surface** |
+
+## 🔐 Verifying Image Signatures
+
+All published images are signed using [Sigstore Cosign](https://www.sigstore.dev/) with keyless signing via GitHub Actions OIDC. You can verify the provenance and SBOM without installing anything except Docker.
+
+### Verify image attestation (includes SBOM)
+
+```bash
+docker run --rm \
+  ghcr.io/sigstore/cosign/cosign:v2.4.1 \
+  verify-attestation \
+  --certificate-identity=https://github.com/xutyxd/node-quark/.github/workflows/docker.yml@refs/heads/main \
+  --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+  --type spdx \
+  xutyxd/node-quark:22
+```
+
 
 ## 🚨 Known Limitations
 
