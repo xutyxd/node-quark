@@ -87,6 +87,13 @@ jobs:
           # DNS module works
           docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
             -e "require('dns'); console.log('DNS module OK');" || exit 1
+
+          # ICU module works (English && Spanish)
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "console.log('English ICU works: ', new Intl.DateTimeFormat('en').format(new Date()))" || exit 1
+
+          docker run --rm ${{ env.IMAGE_NAME }}:temp-extract-${{ matrix.alpine }} \
+            -e "console.log('Spanish ICU works: ', new Intl.DateTimeFormat('es').format(new Date()))" || exit 1
       # Extract Node.js version from built image
       - name: Extract Node version
         id: node_version

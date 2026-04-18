@@ -42,6 +42,8 @@ FROM scratch AS runner
 
 COPY --from=builder /rootfs/ /
 
+COPY --from=builder /usr/share/icu /usr/share/icu
+
 ENV PATH=/bin
 USER node
 WORKDIR /home/node
