@@ -50,10 +50,6 @@ WORKDIR /home/node
 
 ENTRYPOINT ["/bin/node"]
 
-# Small healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "console.log('Health check')" || exit 1
-
 LABEL org.opencontainers.image.title="Node-Quark" \
     org.opencontainers.image.description="Ultra-minimal Node.js Docker image" \
     org.opencontainers.image.source="https://github.com/xutyxd/node-quark" \
