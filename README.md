@@ -46,17 +46,17 @@ Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` 
 ## 🏃 Quick Start
 
 ```bash
-# Pull the latest LTS version (Node 22)
-docker pull xutyxd/node-quark:22
+# Pull the latest LTS version (Node 24)
+docker pull xutyxd/node-quark:24
 
 # Run a quick test
-docker run --rm xutyxd/node-quark:22 -e "console.log('Hello from scratch!')"
+docker run --rm xutyxd/node-quark:24 -e "console.log('Hello from scratch!')"
 
-# Check the size (should be ~60MB vs 180MB+ for node:22-alpine)
-docker images xutyxd/node-quark:22
+# Check the size (should be ~60MB vs 180MB+ for node:24-alpine)
+docker images xutyxd/node-quark:24
 
 # Multi-arch support (automatically selects correct platform)
-docker run --rm xutyxd/node-quark:22 -p "process.arch"
+docker run --rm xutyxd/node-quark:24 -p "process.arch"
 ```
 
 ## Available Tags
@@ -64,7 +64,8 @@ docker run --rm xutyxd/node-quark:22 -p "process.arch"
 | ---------------------------------------------- | ----------------- | ----------- | ----- | ------------ |
 | `20`, `20.15`, `20.15.1`, `20.15.1-alpine3.20` | 20.x              | 3.20        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/20?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
 | `22`, `22.22`, `22.22.2`, `22.22.2-alpine3.22`, `latests` | 22.x              | 3.22        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/22?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
-| `edge`, `24-edge`                              | 24.x (dev)        | edge        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/edge?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
+| `24`, `24.1`, `24.1.0`, `24.1.0-alpine3.24`, `latests` | 24.x              | 3.24        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/24?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
+| `edge`, `20260127-edge`                              | 20260127 (dev)        | edge        | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/edge?logo=docker&label=&logoColor=white&style=flat-square) | amd64, arm64 |
 
 ## 🏗️ Architecture
 
@@ -137,14 +138,14 @@ RUN npm run server:build
 RUN npm run clean
 
 # --------
-FROM alpine:3.22 AS tools
+FROM alpine:3.24 AS tools
 
 RUN mkdir -p /usr/src/app && \
     chown -R 1000:1000 /usr/src/app
 
 # --------
 
-FROM xutyxd/node-quark:22 AS runner
+FROM xutyxd/node-quark:24 AS runner
 
 COPY --from=tools /usr/src/app /usr/src/app
 
@@ -163,10 +164,10 @@ EXPOSE 8080
 ## 📊 Size Comparison
 | Image                    | Size      | Base            | Security                   |
 | ------------------------ | --------- | --------------- | -------------------------- |
-| `node:22`                | ~1.1GB    | Debian Bookworm | Many CVEs                  |
-| `node:22-alpine`         | ~180MB    | Alpine 3.21     | Minimal CVEs               |
-| `node:22-slim`           | ~250MB    | Debian Slim     | Medium CVEs                |
-| **xutyxd/node-quark:22** | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/22?logo=docker&label=&logoColor=white&style=flat-square) | **Scratch**     | **Minimal attack surface** |
+| `node:24`                | ~1.13GB    | Debian Bookworm | Many CVEs                  |
+| `node:24-alpine`         | ~164MB    | Alpine 3.21     | Minimal CVEs               |
+| `node:24-slim`           | ~227MB    | Debian Slim     | Medium CVEs                |
+| **xutyxd/node-quark:22** | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/24?logo=docker&label=&logoColor=white&style=flat-square) | **Scratch**     | **Minimal attack surface** |
 
 ## 🔐 Verifying Image Signatures
 
@@ -181,7 +182,7 @@ docker run --rm \
   --certificate-identity=https://github.com/xutyxd/node-quark/.github/workflows/docker.yml@refs/heads/main \
   --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
   --type spdx \
-  xutyxd/node-quark:22
+  xutyxd/node-quark:24
 ```
 
 
