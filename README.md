@@ -40,7 +40,7 @@ Node-Quark delivers secure, distroless Node.js Docker images based on `scratch` 
 - **🏗️ Multi-Architecture**: Native support for `linux/amd64` and `linux/arm64/v8` (Apple Silicon, AWS Graviton, Raspberry Pi)
 - **🔒 Security Hardened**: Non-root user (`uid:1000`), no shell, no package manager, minimal filesystem
 - **🏷️ Semantic Tagging**: Automatic version extraction and multi-tag strategy (major, minor, patch)
-- **🔄 Multi-Version Support**: Node.js 20 (LTS), 22 (LTS), and Edge (latest development)
+- **🔄 Multi-Version Support**: Node.js 20 (LTS), 22 (LTS), 24 (LTS) and Edge (latest development)
 - **🗜️ Compression**: UPX compression support for even smaller binaries (trade-off: startup time)
 
 ## 🏃 Quick Start
@@ -167,7 +167,7 @@ EXPOSE 8080
 | `node:24`                | ~1.13GB    | Debian Bookworm | Many CVEs                  |
 | `node:24-alpine`         | ~164MB    | Alpine 3.21     | Minimal CVEs               |
 | `node:24-slim`           | ~227MB    | Debian Slim     | Medium CVEs                |
-| **xutyxd/node-quark:22** | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/24?logo=docker&label=&logoColor=white&style=flat-square) | **Scratch**     | **Minimal attack surface** |
+| **xutyxd/node-quark:24** | ![Size](https://img.shields.io/docker/image-size/xutyxd/node-quark/24?logo=docker&label=&logoColor=white&style=flat-square) | **Scratch**     | **Minimal attack surface** |
 
 ## 🔐 Verifying Image Signatures
 
